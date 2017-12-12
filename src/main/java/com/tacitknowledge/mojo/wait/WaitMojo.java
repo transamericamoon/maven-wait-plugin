@@ -21,13 +21,7 @@ import java.net.URLConnection;
 public class WaitMojo extends AbstractMojo
 {
     /** @parameter default-value="http" */
-    String protocol;
-    /** @parameter default-value="localhost" */
-    String host;
-    /** @parameter default-value="8080" */
-    int port;
-    /** @parameter default-value="" */
-    String file;
+    String url;
     /** @parameter default-value="30000" */
     int timeout;
     /** @parameter default-value="0" */
@@ -47,8 +41,13 @@ public class WaitMojo extends AbstractMojo
     {
         if (skip)
         {
-            getLog().info("Skipped waiting for " + protocol + "://" + host);
+            getLog().info("Skipped waiting for " + url);
             return;
+        }
+        
+        if(url == null || url.startsWith("$")) {
+        	getLog().info("URL " + url + " not set so skipping...");
+        	return;
         }
 
         URL url = getURL();
@@ -77,7 +76,7 @@ public class WaitMojo extends AbstractMojo
 
                     while ((inputLine = in.readLine()) != null)
                     {
-                        getLog().debug(inputLine);
+                        getLog().info(inputLine);
                     }
 
                     in.close();
@@ -121,12 +120,12 @@ public class WaitMojo extends AbstractMojo
     {
         try
         {
-            return new URL(protocol, host, port, file);
+            return new URL(url);
         }
         catch (MalformedURLException e)
         {
             throw new MojoExecutionException(
-                    protocol + ", " + host + ", " + port + ", " + file + ": cannot create URL", e);
+                    url + ": cannot create URL", e);
         }
     }
 }
